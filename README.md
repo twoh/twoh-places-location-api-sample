@@ -1,6 +1,6 @@
-# Google Mobile Vision Demo
+# Google Places & Location APIs Demo
 
-This is an Android application for demo-ing the Google Mobile Vision library.
+This is an Android application for demo-ing the Google Places and Location APIs.
 Will be updated as the newest features are released!
 
 ## Installation
