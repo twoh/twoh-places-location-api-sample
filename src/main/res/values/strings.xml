@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">TWOHPlacesAPI</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_main">TWOHPlacesAPI</string>
+
+    <string name="place_picker">Launch Place API</string>
+    <string name="action_settings">Settings</string>
+</resources>
