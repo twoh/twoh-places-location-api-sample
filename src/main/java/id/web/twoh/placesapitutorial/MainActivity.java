@@ -1,8 +1,11 @@
 package id.web.twoh.placesapitutorial;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -18,22 +21,30 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 
+import id.web.twoh.placesapitutorial.util.Constants;
+
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private Location mLastLocation;
     private Button btPlacesAPI;
     private Button btLocation;
+    private Button btGeocoding;
     private TextView tvPlaceAPI;
     private GoogleApiClient mGoogleApiClient;
     // konstanta untuk mendeteksi hasil balikan dari place picker
     private int PLACE_PICKER_REQUEST = 1;
+    private ProgressDialog dialog;
+    private GeocoderResultReceiver geocoderReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setupGoogleAPI();
+        setupDialog();
+
+        geocoderReceiver = new GeocoderResultReceiver(new Handler());
 
         tvPlaceAPI = (TextView) findViewById(R.id.tv_place_id);
 
@@ -67,6 +78,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             }
         });
+
+        btGeocoding = (Button) findViewById(R.id.bt_geoCoding);
+        btGeocoding.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.show();
+                if(mGoogleApiClient.isConnected()){
+                    startIntentService();
+                }
+            }
+        });
+    }
+
+    private void setupDialog(){
+        dialog = new ProgressDialog(this);
+        dialog.setIndeterminate(true);
+        dialog.setMessage("Loading");
     }
 
     @Override
@@ -125,5 +153,48 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
+    }
+
+    protected String address;
+
+    class GeocoderResultReceiver extends ResultReceiver {
+        public GeocoderResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        /**
+         *  Menerima balikan data dari GeocoderIntentService and menampilkan Toast di MainActivity.
+         */
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+
+            // Menampilkan alamat, atau error yang didapat dari proses reverse geocoding
+            address = resultData.getString(Constants.RESULT_DATA_KEY);
+
+            // Memunculkan toast message jika ada alamat ditemukan
+            if (resultCode == Constants.SUCCESS_RESULT) {
+                Toast.makeText(MainActivity.this, "Alamat ditemukan \n" +
+                        address, Toast.LENGTH_LONG).show();
+            }
+
+            dialog.dismiss();
+        }
+    }
+
+    protected void startIntentService() {
+        // Membuat intent yang mengarah ke IntentService untuk proses reverse geocoding
+        Intent intent = new Intent(this, GeocoderIntentService.class);
+
+        // Mengirim ResultReceiver sebagai extra ke intent service.
+        intent.putExtra(Constants.RECEIVER, geocoderReceiver);
+
+        // Mengirim location data sebagai extra juga ke intent service.
+        intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
+
+        // Start the service. If the service isn't already running, it is instantiated and started
+        // (creating a process for it if needed); if it is running then it remains running. The
+        // service kills itself automatically once all intents are processed.
+        // tl;dr = menyalakan intent service :)
+        startService(intent);
     }
 }

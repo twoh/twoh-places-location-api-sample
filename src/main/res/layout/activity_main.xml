@@ -20,6 +20,14 @@
     <Button
         android:layout_below="@id/bt_getLocation"
         android:layout_centerHorizontal="true"
+        android:id="@+id/bt_geoCoding"
+        android:text="Geocode Coordinate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:layout_below="@id/bt_geoCoding"
+        android:layout_centerHorizontal="true"
         android:id="@+id/bt_ppicker"
         android:text="@string/place_picker"
         android:layout_width="wrap_content"
