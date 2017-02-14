@@ -14,4 +14,6 @@ public final class Constants {
             ".RESULT_DATA_KEY";
     public static final String LOCATION_DATA_EXTRA = PACKAGE_NAME +
             ".LOCATION_DATA_EXTRA";
+    public static final String ADDRESS_DATA_EXTRA = PACKAGE_NAME +
+            ".ADDRESS_DATA_EXTRA";
 }

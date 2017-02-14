@@ -35,7 +35,6 @@ public class GeocoderIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String errorMessage = "";
 
         mReceiver = intent.getParcelableExtra(Constants.RECEIVER);
 
@@ -45,6 +44,47 @@ public class GeocoderIntentService extends IntentService {
             return;
         }
 
+        String alamat = intent.getStringExtra(Constants.ADDRESS_DATA_EXTRA);
+
+        if(!TextUtils.isEmpty(alamat)){
+            String errorMessage = "";
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            List<Address> addresses = null;
+            try {
+                addresses = geocoder.getFromLocationName(alamat, 1);
+            } catch (IOException ioException) {
+                // Menangkap apabila ada I/O atau jaringan error
+                errorMessage = "Location Service is not available";
+                ioException.printStackTrace();
+                Log.e(TAG, errorMessage, ioException);
+            }
+
+            // Apabila tidak ada alamat yang bisa ditemukan
+            if (addresses == null || addresses.size()  == 0) {
+                if (errorMessage.isEmpty()) {
+                    errorMessage = "Koordinat tidak ditemukan";
+                    Log.e(TAG, errorMessage);
+                }
+                deliverResultToReceiver(Constants.FAILURE_RESULT, errorMessage);
+            } else {
+                Address address = addresses.get(0);
+                ArrayList<String> addressFragments = new ArrayList<>();
+                addressFragments.add(address.getFeatureName());
+                addressFragments.add(String.valueOf(address.getLatitude()));
+                addressFragments.add(String.valueOf(address.getLongitude()));
+
+                Log.i(TAG, "koordinat ditemukan");
+                deliverResultToReceiver(Constants.SUCCESS_RESULT,
+                        TextUtils.join(System.getProperty("line.separator"), addressFragments));
+            }
+
+        }else{
+            reverseGeocoding(intent);
+        }
+    }
+
+    private void reverseGeocoding(Intent intent){
+        String errorMessage = "";
         // Mendapatkan location yang dikirim ke intent service lewat extra
         Location location = intent.getParcelableExtra(Constants.LOCATION_DATA_EXTRA);
 

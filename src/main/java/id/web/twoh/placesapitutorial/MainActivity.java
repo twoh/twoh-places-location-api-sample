@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private Button btPlacesAPI;
     private Button btLocation;
     private Button btGeocoding;
+    private EditText etAlamat;
     private TextView tvPlaceAPI;
     private GoogleApiClient mGoogleApiClient;
     // konstanta untuk mendeteksi hasil balikan dari place picker
@@ -79,13 +82,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
 
+        etAlamat = (EditText) findViewById(R.id.et_alamat);
+
         btGeocoding = (Button) findViewById(R.id.bt_geoCoding);
         btGeocoding.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.show();
                 if(mGoogleApiClient.isConnected()){
-                    startIntentService();
+                    startIntentService(etAlamat.getText().toString());
                 }
             }
         });
@@ -181,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
-    protected void startIntentService() {
+    protected void startIntentService(String alamat) {
         // Membuat intent yang mengarah ke IntentService untuk proses reverse geocoding
         Intent intent = new Intent(this, GeocoderIntentService.class);
 
@@ -190,6 +195,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         // Mengirim location data sebagai extra juga ke intent service.
         intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
+
+        if(!TextUtils.isEmpty(alamat)){
+            intent.putExtra(Constants.ADDRESS_DATA_EXTRA, alamat);
+        }
 
         // Start the service. If the service isn't already running, it is instantiated and started
         // (creating a process for it if needed); if it is running then it remains running. The
