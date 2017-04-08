@@ -196,6 +196,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         // Mengirim location data sebagai extra juga ke intent service.
         intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
 
+        // Cek apakah ada alamat yang diinputkan, jika ada kirim ke intent service
         if(!TextUtils.isEmpty(alamat)){
             intent.putExtra(Constants.ADDRESS_DATA_EXTRA, alamat);
         }
